@@ -118,11 +118,14 @@ def generate_valid_sudoku():
 
     # Remove numbers to create a playable puzzle
     num_removed = 45  # Adjust this number to control puzzle difficulty
+    original_numbers = []
     for _ in range(num_removed):
         row, col = random.randint(0, 8), random.randint(0, 8)
+        original_numbers.append((row, col, puzzle[row][col]))
         puzzle[row][col] = 0
 
-    return puzzle
+    return puzzle, original_numbers
+
 
 
 def is_solved(puzzle):
@@ -161,7 +164,7 @@ def is_solved(puzzle):
 
 
 def main():
-    PUZZLE = generate_valid_sudoku()  # Generate a new Sudoku puzzle
+    PUZZLE, original_numbers = generate_valid_sudoku()  # Generate a new Sudoku puzzle
 
     selected_row, selected_col = None, None
 
@@ -181,15 +184,20 @@ def main():
                     if PUZZLE[selected_row][selected_col] == 0:  # Check if the cell is empty
                         if event.unicode.isdigit() and int(event.unicode) in range(1, 10):
                             PUZZLE[selected_row][selected_col] = int(event.unicode)
-                            
-                        if is_solved(PUZZLE):
-                            print("Congratulations! You've solved the puzzle.")
+
+                            if is_solved(PUZZLE):
+                                print("Congratulations! You've solved the puzzle.")
+
+                    elif (selected_row, selected_col, int(event.unicode)) in original_numbers:
+                        # Check if the cell contains an original number
+                        pass  # Do nothing, original numbers cannot be changed
 
         WINDOW.fill(WHITE)
         draw_grid(selected_row, selected_col)
         draw_numbers(PUZZLE, selected_row, selected_col)
 
         pygame.display.flip()
+
 
 if __name__ == "__main__":
     main()

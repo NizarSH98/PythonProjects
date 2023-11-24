@@ -1,14 +1,23 @@
 from collections import deque
 import random
 import tkinter as tk
+import time
 
-goalstate = [
+root = tk.Tk()
+root.title("9 Puzzle Game")
+
+goalState = [
     1,2,3,
     4,5,6,
     7,8,0]
 
-currentState = list(range(9))  # Create a list from 0 to 8
-random.shuffle(currentState)  # Shuffle the list in place
+currentState = [
+    1,2,3,
+    4,5,0,
+    7,8,6]
+
+#list(range(9))  # Create a list from 0 to 8
+#random.shuffle(currentState)  # Shuffle the list in place
 
 def getSuccessors(currentState):
     zeroIndex = currentState.index(0)
@@ -28,6 +37,14 @@ def getSuccessors(currentState):
 
     return validMoves
 
+def update_labels(state):
+    for i in range(3):
+        for j in range(3):
+            label = tk.Label(root, text=str(state[i*3 + j]), font=('Helvetica', 20), width=5, height=2, relief='ridge')
+            label.grid(row=i, column=j)
+
+update_labels(currentState)
+
 def isGoalState(currentState,goalState):
     return (currentState==goalState)
 
@@ -36,6 +53,8 @@ def bfs(currentState, goalState):
     explored = set()  # Initialize the set of explored states
 
     while frontier:
+        
+
         state, path = frontier.popleft()  # Get the first state and its path from the queue
 
         if isGoalState(state, goalState):
@@ -43,11 +62,15 @@ def bfs(currentState, goalState):
 
         explored.add(tuple(state))  # Add the state to the set of explored states
 
+        
+
         for move in getSuccessors(state):
             nextState = getNewState(state, move)
             if tuple(nextState) not in explored:
-                frontier.append((nextState, path + [move]))  # Add the next state and its path to the frontier
-
+                frontier.append((nextState, path + [move])) # Add the next state and its path to the frontier
+                update_labels(nextState)
+                break
+        
     return None  # If no solution is found, return None 
 
 
@@ -69,47 +92,17 @@ def getNewState(currentState, move):
 
     return newState
 
-animating_moves = deque()
-
-def make_move():
-    global currentState, animating_moves
-    if animating_moves:
-        move = animating_moves.popleft()
-        currentState = getNewState(currentState, move)  # Update the currentState
-        update_gui()
-        if animating_moves:
-            root.after(500, make_move)
-
-
-# Define a function to update the GUI with the current state
-def update_gui():
-    for i in range(3):
-        for j in range(3):
-            value = currentState[i*3+j]
-            labels[i][j].config(text=str(value) if value != 0 else '', font=("Helvetica", 16, "bold"))
-
-# Define a function to start the animation
-def start_animation():
-    global animating_moves
-    animating_moves = deque(bfs(currentState, goalstate))
-    make_move()
-
-
-# Create the main window
-root = tk.Tk()
-root.title("8 Puzzle Game")
-
-# Create labels for the puzzle tiles
-labels = [[tk.Label(root, width=5, height=2, font=("Helvetica", 16, "bold"), relief="solid") for _ in range(3)] for _ in range(3)]
-
-# Place the labels in the grid
-for i in range(3):
-    for j in range(3):
-        labels[i][j].grid(row=i, column=j)
-
-# Create a button to start the animation
-start_button = tk.Button(root, text="Start Animation", command=start_animation)
-start_button.grid(row=3, column=0, columnspan=3)
+print(currentState[0],currentState[1],currentState[2])
+print(currentState[3],currentState[4],currentState[5])
+print(currentState[6],currentState[7],currentState[8])
+print(bfs(currentState , goalState ))
+result = bfs(currentState, goalState)
 
 # Start the GUI event loop
-root.mainloop()
+#root.mainloop()
+
+'''if result is not None:
+    print("Solution found!")
+    print(result)
+else:
+    print("No solution found.")'''
